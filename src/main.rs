@@ -4,13 +4,21 @@ use regex::Regex;
 fn main() {
     let args = CRTArgs::parse();
 
+    println!("verbose {:?}", args.verbose);
     let sum = std::fs::read_to_string(args.destination)
         .unwrap()
         .lines()
-        .map(|line| calculate_line(line) as usize)
+        .map(|line| {
+            let num = calculate_line(line);
+            if args.verbose {
+                println!("{} => {}", line, num);
+            }
+            num as usize
+        })
         .sum::<usize>();
 
-    println!("{}", sum);
+    println!("");
+    println!("Sum = {}", sum);
 }
 
 fn calculate_line(line: &str) -> u8 {
@@ -49,4 +57,7 @@ fn number_str_to_int(string: &str) -> u8 {
 struct CRTArgs {
     /// File destination
     destination: String,
+
+    #[clap(long, short, action)]
+    verbose: bool,
 }
