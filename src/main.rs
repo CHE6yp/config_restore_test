@@ -4,7 +4,6 @@ use regex::Regex;
 fn main() {
     let args = CRTArgs::parse();
 
-    println!("verbose {:?}", args.verbose);
     let sum = std::fs::read_to_string(args.destination)
         .unwrap()
         .lines()
