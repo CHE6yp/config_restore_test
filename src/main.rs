@@ -1,34 +1,33 @@
+use clap::{Args, Parser};
 use regex::Regex;
 
 fn main() {
-    let example = "aaaa4ddd3";
+    let args = CRTArgs::parse();
 
-    println!("{:?}", calculate_line(example));
+    let sum = std::fs::read_to_string(args.destination)
+        .unwrap()
+        .lines()
+        .map(|line| calculate_line(line) as usize)
+        .sum::<usize>();
+
+    println!("{}", sum);
 }
 
 fn calculate_line(line: &str) -> u8 {
     let pattern_first =
         Regex::new(r"(one|two|three|four|five|six|seven|eight|nine|1|2|3|4|5|6|7|8|9)").unwrap();
-    let pattern_last =
-        Regex::new(r"(one|two|three|four|five|six|seven|eight|nine|1|2|3|4|5|6|7|8|9)$").unwrap();
 
-    let match_first = pattern_first
-        .captures(line)
-        .unwrap()
-        .get(0)
-        .unwrap()
-        .as_str();
-    let match_last = pattern_last
-        .captures(line)
-        .unwrap()
-        .get(0)
-        .unwrap()
-        .as_str();
+    let mut captures = pattern_first.captures_iter(line);
 
-    let first = number_str_to_int(match_first);
-    let last = number_str_to_int(match_last);
+    let first_match = captures.next().unwrap().get(0).unwrap().as_str();
+    let first = number_str_to_int(first_match);
 
-    first * 10 + last
+    let last = match captures.last() {
+        Some(capture) => number_str_to_int(capture.get(0).unwrap().as_str()),
+        None => first,
+    };
+
+    return first * 10 + last;
 }
 
 fn number_str_to_int(string: &str) -> u8 {
@@ -44,4 +43,10 @@ fn number_str_to_int(string: &str) -> u8 {
         "9" | "nine" => 9,
         _ => unreachable!(),
     }
+}
+
+#[derive(Parser)]
+struct CRTArgs {
+    /// File destination
+    destination: String,
 }
