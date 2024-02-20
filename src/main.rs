@@ -1,5 +1,5 @@
 use clap::Parser;
-use regex::Regex;
+use fancy_regex::Regex;
 
 fn main() {
     let args = CRTArgs::parse();
@@ -22,19 +22,19 @@ fn main() {
 
 fn calculate_line(line: &str) -> u8 {
     let pattern_first =
-        Regex::new(r"(one|two|three|four|five|six|seven|eight|nine|1|2|3|4|5|6|7|8|9)").unwrap();
+        Regex::new(r"(?=(one|two|three|four|five|six|seven|eight|nine|1|2|3|4|5|6|7|8|9))").unwrap();
 
     let mut captures = pattern_first.captures_iter(line);
 
-    let first_match = captures.next().unwrap().get(0).unwrap().as_str();
+    let first_match = captures.next().unwrap().unwrap().get(1).unwrap().as_str();
     let first = number_str_to_int(first_match);
 
     let last = match captures.last() {
-        Some(capture) => number_str_to_int(capture.get(0).unwrap().as_str()),
+        Some(capture) => number_str_to_int(capture.unwrap().get(1).unwrap().as_str()),
         None => first,
     };
 
-    return first * 10 + last;
+    first * 10 + last
 }
 
 fn number_str_to_int(string: &str) -> u8 {
